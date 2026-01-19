@@ -1,233 +1,260 @@
-# ASTREA Web Scraper
 
-A powerful web scraping tool that extracts content from web pages, chunks it, creates embeddings, and stores them in Pinecone DB for semantic search and retrieval.
+# 🌌 ASTREA
 
-## Features
+### A Space Biology Research Engine
 
-- 🕸️ **Web Scraping**: Extract clean text content from any web page
-- 🧩 **Intelligent Chunking**: Split content into optimal chunks for processing
-- 🤖 **AI Embeddings**: Generate embeddings using Google's Gemini AI
-- 📦 **Pinecone Storage**: Store embeddings in Pinecone vector database
-- 🚀 **Multiple Interfaces**: API endpoints, CLI tool, and direct function calls
-- 📄 **PDF Support**: Also supports PDF document processing (via embedder.js)
+**Winner (1st Place) — NASA International Space Apps Challenge 2025 (Ghaziabad Local Hackathon)** 🏆
 
-## Prerequisites
+ASTREA is an AI-powered research engine designed to help scientists and researchers explore large-scale space biology literature efficiently. It combines **semantic search**, **knowledge graph reasoning**, and **LLM-powered synthesis** to uncover hidden relationships across NASA bioscience studies.
 
-1. **Environment Variables**: Create a `.env` file in the root directory with:
-   ```
-   GEMINI_API_KEY=your_gemini_api_key_here
-   PINECONE_INDEX_NAME=your_pinecone_index_name
-   PORT=8080
-   ```
+Built by **Team Andromeda** during the NASA Space Apps Challenge 2025.
 
-2. **APIs Setup**:
-   - Get a Gemini API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
-   - Set up a Pinecone account and create an index at [Pinecone](https://www.pinecone.io/)
+---
 
-## Installation
+## 🚀 Problem Statement
+
+NASA’s space biology research produces vast amounts of unstructured and semi-structured data—research papers, experimental reports, tables, and images.
+However:
+
+* Relevant insights are scattered across thousands of documents
+* Cross-paper relationships are difficult to identify
+* Traditional keyword search fails to capture semantic meaning
+
+As a result, valuable connections remain hidden, slowing scientific discovery.
+
+---
+
+## 💡 Solution Overview
+
+ASTREA introduces a **hybrid retrieval and reasoning system** that:
+
+* Scrapes and ingests bioscience documents
+* Extracts structured knowledge (entities & relationships)
+* Stores information in **both**:
+
+  * a **Vector Database** (semantic similarity)
+  * a **Knowledge Graph** (explicit relationships)
+* Answers user queries by **reasoning over both representations**
+
+This allows ASTREA to go beyond simple document retrieval and generate **context-aware, insight-driven responses**.
+
+---
+
+## 🧠 System Architecture
+
+### High-level flow:
+
+1. **Document Ingestion**
+
+   * Web scraping (HTML pages)
+   * PDF document loading
+2. **Chunking & Preprocessing**
+
+   * Intelligent text chunking with overlap
+   * Metadata enrichment (source, timestamp, type)
+3. **Dual Storage Pipeline**
+
+   * **Vector DB (Pinecone)**
+     Stores embeddings for semantic retrieval
+   * **Knowledge Graph (Neo4j)**
+     Stores extracted entities and relationships as graph triples
+4. **Query Processing**
+
+   * User query is embedded and matched against vector DB
+   * Related entities and edges fetched from Neo4j
+5. **LLM Reasoning Layer**
+
+   * Retrieved chunks + graph context are combined
+   * LLM generates a grounded, reasoned response
+
+> This hybrid approach enables both **semantic similarity** and **relational reasoning**.
+
+---
+
+## ✨ Key Features
+
+* 🔍 **Semantic Search** across 600+ NASA bioscience studies
+* 🧠 **Hybrid RAG Architecture** (Vector + Knowledge Graph)
+* 🕸️ **Entity & Relationship Extraction** using LLMs
+* 📊 **Neo4j Knowledge Graph** for relational exploration
+* 📦 **Pinecone Vector Store** for scalable similarity search
+* 🧩 **Intelligent Chunking** for high-quality retrieval
+* 📄 **PDF + Web Content Support**
+* 🚀 **Multiple Interfaces**: REST API, CLI, and programmatic usage
+
+---
+
+## 🛠️ Tech Stack
+
+* **Backend**: Node.js, Express.js
+* **Web Scraping**: Axios, Cheerio
+* **LLMs & Embeddings**: OpenAI / Gemini (configurable)
+* **Vector Database**: Pinecone
+* **Knowledge Graph**: Neo4j
+* **Document Processing**: Custom chunking pipeline
+* **APIs**: RESTful endpoints
+
+---
+
+## 📦 Installation & Setup
+
+### Prerequisites
+
+Create a `.env` file in the root directory:
+
+```env
+GEMINI_API_KEY=your_api_key
+OPENAI_API_KEY=your_api_key
+PINECONE_INDEX_NAME=your_index_name
+NEO4J_URI=your_neo4j_uri
+NEO4J_USERNAME=your_username
+NEO4J_PASSWORD=your_password
+PORT=8080
+```
+
+### Install dependencies
 
 ```bash
-cd astrea
 npm install
 ```
 
-## Usage
+---
 
-### 1. REST API Endpoints
+## ▶️ Usage
 
-Start the server:
+### Start the server
+
 ```bash
 npm start
-# or for development
+# or
 npm run dev
 ```
 
-#### Available Endpoints:
+---
 
-**Check Scraper Status:**
-```
-GET http://localhost:8080/scrape/status
+### REST API Endpoints
+
+#### Scrape a single URL
+
+```http
+POST /scrape/url
 ```
 
-**Scrape Single URL:**
-```
-POST http://localhost:8080/scrape/url
-Content-Type: application/json
-
+```json
 {
-  "url": "https://example.com/article"
+  "url": "https://example.com/research-paper"
 }
 ```
 
-**Scrape Multiple URLs:**
-```
-POST http://localhost:8080/scrape/urls
-Content-Type: application/json
+#### Scrape multiple URLs
 
+```http
+POST /scrape/urls
+```
+
+```json
 {
-  "urls": [
-    "https://example.com/article1",
-    "https://example.com/article2",
-    "https://example.com/article3"
-  ]
+  "urls": ["https://site1.com", "https://site2.com"]
 }
 ```
 
-**Chat with processed content:**
-```
-POST http://localhost:8080/chat
-Content-Type: application/json
+#### Ask a question
 
+```http
+POST /chat
+```
+
+```json
 {
-  "question": "What information do you have about AI?"
+  "question": "How does microgravity affect gene expression in mice?"
 }
 ```
 
-### 2. Command Line Interface
+---
 
-Interactive CLI tool:
+### CLI Tool
+
 ```bash
 npm run scraper-cli
 ```
 
-The CLI will guide you through:
-1. Choosing single or multiple URL mode
-2. Entering URLs to scrape
-3. Monitoring the processing progress
+The CLI supports:
 
-### 3. Direct Function Usage
+* Single / multiple URL ingestion
+* Progress tracking
+* Error diagnostics
 
-```javascript
-import { processWebUrl, processMultipleUrls } from './webScraper.js';
+---
 
-// Process a single URL
-const result = await processWebUrl('https://example.com/article');
-console.log(`Created ${result.chunksCreated} chunks from ${result.url}`);
+## 🧪 How ASTREA Thinks (Why It’s Different)
 
-// Process multiple URLs
-const urls = ['https://site1.com', 'https://site2.com'];
-const results = await processMultipleUrls(urls);
-results.forEach(result => {
-  if (result.success) {
-    console.log(`✅ ${result.url}: ${result.chunksCreated} chunks`);
-  } else {
-    console.log(`❌ ${result.url}: ${result.error}`);
-  }
-});
-```
-
-### 4. Test the Scraper
-
-Run the test file to verify everything works:
-```bash
-npm run test-scraper
-```
-
-## How It Works
-
-1. **Web Scraping**: 
-   - Fetches webpage content using Axios
-   - Parses HTML with Cheerio
-   - Extracts clean text from main content areas
-   - Removes navigation, ads, scripts, and styling
-
-2. **Content Processing**:
-   - Creates Document objects with metadata (URL, timestamp, type)
-   - Splits content into overlapping chunks (1000 chars with 200 char overlap)
-   - Preserves context between chunks
-
-3. **Embedding Generation**:
-   - Uses Google's Gemini text-embedding-004 model
-   - Converts text chunks into high-dimensional vectors
-
-4. **Vector Storage**:
-   - Stores embeddings in Pinecone with metadata
-   - Enables semantic search and retrieval
-   - Supports concurrent uploads for efficiency
-
-## Content Extraction Strategy
-
-The scraper uses intelligent content extraction:
-
-1. **Priority Selectors**: Looks for main content in this order:
-   - `<main>` tags
-   - `<article>` tags
-   - `.content`, `.main-content` classes
-   - `.post-content`, `.entry-content` classes
-   - `<body>` as fallback
-
-2. **Content Cleaning**:
-   - Removes scripts, styles, navigation, footers
-   - Filters out advertisements and promotional content
-   - Normalizes whitespace and formatting
-
-3. **Quality Checks**:
-   - Validates extracted content length
-   - Ensures meaningful content is captured
-   - Provides detailed error messages for failures
-
-## Project Structure
+### Traditional RAG
 
 ```
-astrea/
-├── embedder.js              # PDF document processing
-├── webScraper.js            # Core web scraping functionality
-├── webScraperCli.js         # Interactive CLI tool
-├── testWebScraper.js        # Test examples
-├── index.js                 # Express server
-├── controllers/
-│   ├── chatControllerGpt.js # Chat functionality
-│   └── webScraperController.js # Web scraper API controllers
-└── routes/
-    └── webScraperRoutes.js  # API route definitions
+Query → Retrieve Documents → LLM → Answer
 ```
 
-## Error Handling
+### ASTREA’s Hybrid Reasoning
 
-The system includes comprehensive error handling:
+```
+Query
+  ↓
+Vector Retrieval (Pinecone)
+  +
+Graph Traversal (Neo4j)
+  ↓
+Reasoning Layer
+  ↓
+LLM
+  ↓
+Insightful Answer
+```
 
-- **Network errors**: Timeout, connection issues, invalid URLs
-- **Content errors**: Empty pages, parsing failures, insufficient content
-- **API errors**: Invalid API keys, rate limiting, service unavailability
-- **Storage errors**: Pinecone connection issues, indexing failures
+This allows ASTREA to:
 
-Each error provides detailed messages to help diagnose and resolve issues.
+* Infer relationships
+* Connect experiments across papers
+* Provide more grounded, explainable answers
 
-## Performance Considerations
+---
 
-- **Concurrent Processing**: Supports processing multiple URLs with controlled concurrency
-- **Chunking Strategy**: Optimized chunk sizes for embedding quality and retrieval performance
-- **Rate Limiting**: Built-in delays and retry logic for API calls
-- **Memory Management**: Efficient processing of large content volumes
+## 🏆 Achievements
 
-## Troubleshooting
+* 🥇 **Winner (1st Place)** — NASA International Space Apps Challenge 2025
+  *Ghaziabad Local Hackathon*
+* Built by **Team Andromeda**
 
-### Common Issues:
+**Team Members**:
 
-1. **"Missing required environment variables"**
-   - Check your `.env` file has `GEMINI_API_KEY` and `PINECONE_INDEX_NAME`
+* Anchita Jain
+* Ankit Gupta
+* Ashutosh Kumar Singh
+* Ananya Patel
+* Akhand Pratap Singh
+* Lakshya Pratap Singh
 
-2. **"Failed to scrape content"**
-   - Verify the URL is accessible
-   - Some sites block automated requests
-   - Check your internet connection
+---
 
-3. **"Insufficient content extracted"**
-   - The webpage might be JavaScript-heavy
-   - Content might be behind authentication
-   - Try different URLs
+## 🎥 Demo & Presentation
 
-4. **API quota exceeded**
-   - Check your Gemini API usage limits
-   - Verify your Pinecone plan limits
+* 📽️ **Demo Video**:
+  [https://drive.google.com/file/d/1sU4GM5Dd47xY-x1pKavkodyNyzcAPI7h/view](https://drive.google.com/file/d/1sU4GM5Dd47xY-x1pKavkodyNyzcAPI7h/view)
+* 📄 **Pitch Deck & Architecture**: Included in repository
 
-## Contributing
+---
 
-1. Fork the repository
-2. Create your feature branch
-3. Test your changes thoroughly
-4. Submit a pull request
+## 📜 License
 
-## License
+This project is licensed under the **ISC License**.
 
-This project is licensed under the ISC License.
+---
+
+## 🙌 Acknowledgements
+
+Special thanks to:
+
+* **NASA Space Apps Challenge**
+* **Innogeeks & KIET Group of Institutions**
+* Judges and mentors for valuable feedback and guidance
+
+
